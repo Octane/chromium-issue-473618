@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <title>Chromium issue 473618 test case</title>
+    <meta charset="UTF-8">
+    <style>
+        html, body, .drop-area {
+            height: 100%;
+        }
+        body {
+            margin: 0;
+        }
+        .backlink {
+            position: fixed;
+            left: 10px;
+            bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="drop-area">drop here</div>
+
+    <script>
+        var dropArea = document.querySelector('.drop-area');
+
+        dropArea.addEventListener('dragover', function (event) {
+            event.preventDefault();
+        });
+
+        dropArea.addEventListener('drop', function (event) {
+            event.preventDefault();
+
+            var entry = event.dataTransfer.items[0].webkitGetAsEntry();
+
+            if (entry.isFile) {
+
+                // OSX filesystems use Unicode Normalization Form D (NFD),
+                // and entry.file(…) can't read the files with the same names
+                entry.file(function (file) {
+                    console.log('read file success: ', file);
+                }, function (error) {
+                    console.log('read file error: ', error);
+                });
+
+            } else if (entry.isDirectory) {
+
+                var directoryReader = entry.createReader();
+                directoryReader.readEntries(function (entries) {
+                    console.log('read directory success: ', entries);
+                }, function (error) {
+                    console.log('read directory error: ', error);
+                });
+
+            }
+
+        });
+    </script>
+
+    <a class="backlink" href="https://code.google.com/p/chromium/issues/detail?id=473618">Chromium issue 473618</a>
+
+</body>
+</html>
